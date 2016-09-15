@@ -1,0 +1,470 @@
+﻿<!DOCTYPE HTML>
+<html>
+
+<head lang="ru">
+
+<meta charset="UTF-8">
+<title>Promised</title>
+
+<style type="text/css">
+	
+	body {
+		
+		padding : 0;
+		margin : 0;
+		
+	}
+	
+	.inputCodeLine {
+		
+		line-height : 20px;
+		margin : 0;
+		border : none;
+		background-color : #f9f9f9;
+		font-family : "Courier New", Courier, monospace;
+		font-size : 15px;
+		color : #333;
+		white-space : pre-line;
+		
+	}
+	
+	.inputCodeLine:focus {
+		
+		outline : none;
+		
+	}
+	
+	#inputAll {
+		
+		height : 500px;
+		width : 920px;
+		background-color : #f9f9f9;
+		position : absolute;
+		left : 90px;
+		display : inline-block;
+		
+		overflow-y : auto;
+		overflow-x : auto;
+		
+	}
+	
+	#codingSpace {
+		
+		margin : 10px;
+		width : 1000px;
+		height : 545px;
+		color : #333;
+		
+		font-family : "Courier New", Courier, monospace;
+		
+	}
+	
+	#inputAllNums {
+		
+		margin : 0;
+		padding : 0;
+		height : 500px;
+		background-color : #e9e9e9;
+		height : 500px;
+		width : 80px;
+		text-align : center;
+		overflow : hidden;
+		position : absolute;
+		z-index : 1;
+		opacity : 0.8;
+		box-shadow : 2px 0 5px rgba(33, 33, 33, 0.2);
+		
+		display : inline-block;
+		
+	}
+	
+	.inputNumP {
+		
+		margin : 0;
+		padding : 0;
+		padding : 2px 0;
+		height : 16px;
+		font-size : 15px;
+		text-shadow : 0px 0px 3px rgba(255, 255, 255, 0.2);
+		
+		word-wrap : break-word;
+		
+	}
+	
+	.inputNumP:nth-child(even) {
+		
+		background-color : #e5e5e5;
+		
+	}
+	
+	p.inputCodeLine div {
+		
+		list-style-type : none;
+		
+	}
+	
+	p.inputCodeLine div:nth-child(even) {
+		
+		background-color : #f5f5f5;
+		
+	}
+	
+	#codeButton {
+		
+		position : absolute;
+		top : 520px;
+		left : 920px;
+		
+		height : 24px;
+		background-color : #dfdfdf;
+		padding : 4px 8px;
+		border-radius : 10px;
+		border : none;
+		
+	}
+	
+	#codeButton:focus {
+		
+		outline : none;
+		
+	}
+	
+	#waitCodeMake {
+		
+		top : 0;
+		left : 0;
+		position : fixed;
+		left : 48%;
+		font-size : 24px;
+		font-family : sans-serif;
+		top : 46%;
+		cursor : none;
+		transition : transform .5s;
+		transform : scale(0);
+		
+	}
+	
+	#greyDisplay {
+		
+		z-index : 10;
+		cursor : wait;
+		top : -10%;
+		left : -15%;
+		position : fixed;
+		width : 130%;
+		height : 120%;
+		background-color : #fff;
+		opacity : 0.4;
+		transition : transform .1s linear, border-radius 0.8s linear, background-color .3s linear;
+		border-radius : 50%;
+		transform : scale(0);
+		
+	}
+	
+	#waitCodeMake:after {
+		
+		animation : makeDots 1.5s infinite;
+		content : ".";
+		
+	}
+	
+	@keyFrames makeDots {
+		
+		
+		20% {
+			
+			content : ".";
+			
+		}
+		
+		60% {
+			
+			content : "..";
+			
+		}
+		
+		90% {
+			
+			content : "...";
+			
+		}
+		
+	}
+	
+	@keyFrames makeLoad {
+		
+		0% {
+			
+			transform : scale(0);
+			
+		}
+		
+		25% {
+			
+			transform : scale(1.3);
+			
+		}
+		
+		45% {
+			
+			transform : scale(0.9);
+			
+		}
+		
+		60% {
+			
+			transform : scale(1.05);
+			
+		}
+		
+		80% {
+			
+			transform : scale(0.98);
+			
+		}
+		
+		90% {
+			
+			transform : scale(1.01);
+			
+		}
+		
+		100% {
+			
+			transform : scale(1);
+			
+		}
+		
+	}
+	
+</style>
+
+</head>
+
+<body>
+	<div id="codingSpace">
+		<div id="inputAllNums">
+			
+			<p class="inputNumP" data-num="1">1</p>
+			
+		</div>
+		<div id="inputAll">
+			<p contenteditable="true" class="inputCodeLine" id="allGuessCode" ></p>
+		</div>
+		<input id="codeButton" type="button" width="20" value="Сохранить">
+		<p id="waitCodeMake">Идет загрузка</p>
+		<div id="greyDisplay"></div>
+	</div>
+	
+	<script type="text/javascript" defer>
+		var codeParams = {
+			
+			allNums : document.getElementById("inputAllNums"),
+			allCodes : document.getElementById("inputAll"),
+			allCode : document.getElementById("allGuessCode"),
+			saveButton : document.getElementById("codeButton"),
+			displayLoad : document.getElementById("waitCodeMake"),
+			displayGrey : document.getElementById("greyDisplay"),
+			whatClicked : 0,
+			
+			howManyCode : 1,
+			spaceCode : document.getElementById("codingSpace")
+			
+			
+		};
+		//var allInputNums = document.getElementById("inputAllNums");
+		//var allInputCode = document.getElementById("inputAll");
+		//var codeContent = document.getElementById("allGuessCode");
+		//var howManySpace = 1;
+		
+		//var spaceCode = document.getElementById("codingSpace");
+		var InCodeInput = false;
+		var howManyWord = 0;
+		
+		var canDeleteInput = true;
+		
+		codeParams.allCodes.onscroll = function() {
+			
+			codeParams.allNums.scrollTop = codeParams.allCodes.scrollTop;
+			
+		};
+		
+		codeParams.spaceCode.onmousedown = function(e) {
+			
+			if (e.target.tagName == "P" && e.target.classList.value && e.target.classList.value == "inputCodeLine") {
+				InCodeInput = true;
+				//console.log(e.target.tagName);
+				
+				//console.log(e.target.value.length);
+				//whatClicked = e.target;
+				/*for (var i = 0; i < codeParams.allCodes.children.length; i++) {
+					
+					if (allInputCode.children[i].hasAttribute("data-inputCursor")) {
+						
+						allInputCode.children[i].removeAttribute("data-inputCursor");
+						
+					}
+					
+				}
+				*/
+				e.target.setAttribute("data-inputCursor", "");
+				/*for (var i = 0; i < codeParams.allCodes.children.length; i++) {
+					
+					if (codeParams.allCodes.children[i].hasAttribute("data-inputCursor")) {
+						
+						howManyWord = e.target.length;
+						
+					}
+					
+				}
+				
+				
+				whatClicked.removeAttribute("id");
+				whatClicked.removeAttribute("data-cursorOver");
+				e.target.setAttribute("id", "inputCursorHere");
+				InCodeInput = true;
+				whatClicked = document.getElementById("inputCursorHere");
+				whatClicked.setAttribute("data-cursorOver", "");
+				*/
+				
+			} else if ( e.target.tagName == "DIV" && e.target.parentElement.classList.value == "inputCodeLine" ) {
+			//console.dir(e.target);
+			
+			/*for (var i = 0; i < e.target.parentElement.children.length; i++) {
+				
+				if (e.target.parentElement.children[i].classList.value == "inputCodeLineHover") {
+					
+					e.target.parentElement.children[i].classList.value = "";
+					
+				}
+				
+			}
+			
+			e.target.classList.value = "inputCodeLineHover";
+			
+			for (var i = 0; i < e.target.parentElement.children.length; i++) {
+				
+				if (e.target.parentElement.children[i].classList.value == "inputCodeLineHover") {
+					
+					codeParams.whatClicked = i;
+					
+				}
+				
+			}*/
+			
+			
+			e.target.parentElement.setAttribute("data-inputCursor", "");
+			InCodeInput = true;
+			} else {
+				
+				InCodeInput = false;
+				codeParams.allCode.removeAttribute("data-inputCursor");
+				
+			}
+			
+		};
+		
+		codeParams.allCode.onkeypress = function(e) {
+			//console.log(e.keyCode);
+			
+			
+			if ( e.keyCode == 13 && InCodeInput === true ) {
+				
+				/*
+				codeParams.allCode.children[codeParams.whatClicked-1].classList.value = "";
+				codeParams.allCode.children[codeParams.whatClicked].classList.value = "inputCodeLineHover";
+				codeParams.whatClicked++;
+				*/
+			
+			}
+			
+		};
+		
+		codeParams.spaceCode.onkeyup = function(e) {
+			
+			canDeleteInput = true;
+			
+		};
+		
+		codeParams.spaceCode.oninput = function(e) {
+			
+			
+			/*
+			var nowHowManyWord2 = allInputCode.children[whatClicked].value.length;
+			console.log("One: "+nowHowManyWord2);
+			console.log("Two: "+howManyWord);
+				if ( InCodeInput == true && nowHowManyWord2 > howManyWord ) {
+					
+					return false;
+					
+				} else if ( InCodeInput == true && nowHowManyWord2 === 0 ) {
+					
+					return true;
+					
+				}
+			*/
+			
+			
+			
+			/*for (var i = 0; i < codeParams.allCode.children.length; i++) {
+				
+				var replaceDivToLi = codeParams.allCode.children[i];
+				
+				var newLiToReplace = document.createElement("li");
+				newLiToReplace.innerHTML = "<br>";
+				
+				if (replaceDivToLi.tagName == "DIV") {
+					
+					codeParams.allCode.replaceChild(newLiToReplace, replaceDivToLi);
+					console.log("WORK");
+					
+				}
+				
+			}*/
+			
+			//console.dir(e.target);
+			
+			console.dir(codeParams.allCode);
+			
+			if (codeParams.howManyCode > codeParams.allCode.childNodes.length && codeParams.allCode.childNodes.length !== 0) {
+				
+				codeParams.howManyCode = codeParams.allCode.childNodes.length;
+				
+				codeParams.allNums.removeChild(codeParams.allNums.childNodes[codeParams.allNums.childNodes.length-1]);
+				//console.log(codeParams.howManyCode);
+				//codeParams.allNums.innerHTML = "";
+				/*
+				for (var i = 0; i < codeParams.howManyCode; i++) {
+					var createAllLines = newCodeLi.cloneNode(true);
+					createAllLines.innerHTML = i+1;
+					codeParams.allNums.appendChild(createAllLines);
+					
+				}*/
+				
+			} else if (codeParams.howManyCode < codeParams.allCode.childNodes.length) {
+				
+				codeParams.howManyCode = codeParams.allCode.childNodes.length;
+				var newCodeLi = document.createElement("p");
+				newCodeLi.className = "inputNumP";
+				
+				//console.log(codeParams.howManyCode);
+				newCodeLi.innerHTML = codeParams.howManyCode;
+				newCodeLi.setAttribute("data-num", codeParams.howManyCode);
+				codeParams.allNums.appendChild(newCodeLi);
+				
+				
+			}
+			
+			
+			//codeParams.allNums.
+			
+		
+		
+		};
+		
+	</script>
+	<script src="code.js" type="text/javascript" defer></script>
+	
+</body>
+
+</html>
